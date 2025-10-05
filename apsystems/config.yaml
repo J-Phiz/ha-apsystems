@@ -26,8 +26,8 @@ options:
       name: 'APSystems second residence'
       action: 'sync'
   openapi:
-    - appId: ''
-      appSecret: ''
+    appId: ''
+    appSecret: ''
 schema:
   meters:
     - systemId: str?
@@ -35,5 +35,5 @@ schema:
       name: str?
       action: list(sync|reset)
   openapi:
-    - appId: str?
-      appSecret: str?
+    appId: str?
+    appSecret: str?
