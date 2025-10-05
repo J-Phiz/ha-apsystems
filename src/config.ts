@@ -1,89 +1,83 @@
 import { readFileSync } from 'node:fs';
 
+/**
+ * Configuration for a single meter (device) in the system.
+ */
 export type MeterConfig = {
-  prm: string;
-  token: string;
-  name: string;
-  action: 'sync' | 'reset';
-  production: boolean;
-  costs?: CostConfig[];
+  systemId: string; // Unique identifier of the APSystems system
+  ecuId: string; // Unique identifier of the ECU device
+  name: string; // Optional human-readable name
+  action: 'sync' | 'reset'; // Action to perform: 'sync' for data sync, 'reset' to clear statistics
 };
 
-export type CostConfig = {
-  price: number;
-  after?: string;
-  before?: string;
-  weekday?: Array<'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'>;
-  start_date?: string;
-  end_date?: string;
+/**
+ * Configuration for connecting to the OpenAPI.
+ */
+export type OpenapiConfig = {
+  appId: string; // Application ID for authentication
+  appSecret: string; // Secret key for authentication
 };
 
-export type UserConfig = { meters: MeterConfig[] };
+/**
+ * Complete user configuration containing all meters and API credentials.
+ */
+export type UserConfig = { meters: MeterConfig[]; api: OpenapiConfig };
 
+/**
+ * Reads and parses the user configuration from a JSON file.
+ *
+ * @returns A structured UserConfig object.
+ * @throws Error if the configuration file cannot be read or contains duplicates.
+ */
 export function getUserConfig(): UserConfig {
-  let parsed: { meters?: any[]; costs?: any } = {};
+  // Initialize a temporary object to store parsed JSON
+  let parsed: { meters?: any[]; openapi?: any } = {};
 
   try {
+    // Read and parse configuration JSON from file
     parsed = JSON.parse(readFileSync('/data/options.json', 'utf8'));
   } catch (e) {
     throw new Error('Cannot read user configuration: ' + e.toString());
   }
 
-  const result: UserConfig = { meters: [] };
+  // Initialize result with empty meters array and null API credentials
+  const result: UserConfig = { meters: [], api: null };
 
+  // Extract OpenAPI configuration if available
+  if (parsed.openapi && parsed.openapi.appId && parsed.openapi.appSecret) {
+    const resultApi: OpenapiConfig = {
+      appId: parsed.openapi.appId,
+      appSecret: parsed.openapi.appSecret,
+    };
+    result.api = resultApi;
+  }
+
+  // Extract APSystems meters configuration if available
   if (parsed.meters && Array.isArray(parsed.meters) && parsed.meters.length > 0) {
     for (const meter of parsed.meters) {
-      if (meter.prm && meter.token) {
+      if (meter.systemId && meter.ecuId) {
         const resultMeter: MeterConfig = {
-          prm: meter.prm.toString(),
-          token: meter.token,
-          name: meter.name || 'Linky',
-          action: meter.action === 'reset' ? 'reset' : 'sync',
-          production: meter.production === true,
+          systemId: meter.systemId,
+          ecuId: meter.ecuId,
+          name: meter.name || 'APSystems', // Default name if not provided
+          action: meter.action === 'reset' ? 'reset' : 'sync', // Default to 'sync'
         };
-        if (!resultMeter.production && Array.isArray(parsed.costs)) {
-          const prmCostConfigs = parsed.costs.filter((cost) => !cost.prm || cost.prm === meter.prm);
-          if (prmCostConfigs.length > 0) {
-            resultMeter.costs = [];
-            for (const cost of prmCostConfigs) {
-              if (cost.price && typeof cost.price === 'number') {
-                const resultCost: CostConfig = { price: cost.price };
-                if (cost.after && typeof cost.after === 'string') {
-                  resultCost.after = cost.after;
-                }
-                if (cost.before && typeof cost.before === 'string') {
-                  resultCost.before = cost.before;
-                }
-                if (cost.weekday && Array.isArray(cost.weekday)) {
-                  resultCost.weekday = cost.weekday;
-                }
-                if (cost.start_date && typeof cost.start_date === 'string') {
-                  resultCost.start_date = cost.start_date;
-                }
-                if (cost.end_date && typeof cost.end_date === 'string') {
-                  resultCost.end_date = cost.end_date;
-                }
-                resultMeter.costs.push(resultCost);
-              }
-            }
-          }
-        }
         result.meters.push(resultMeter);
       }
     }
   }
 
+  // Check for duplicate systemId/ecuId combinations
   for (const m in result.meters) {
     for (const n in result.meters) {
       if (
         m !== n &&
-        result.meters[m].prm === result.meters[n].prm &&
-        result.meters[m].production === result.meters[n].production
+        result.meters[m].systemId === result.meters[n].systemId &&
+        result.meters[m].ecuId === result.meters[n].ecuId
       ) {
         throw new Error(
-          `PRM ${result.meters[m].prm} is configured multiple times in ${
-            result.meters[m].production ? 'production' : 'consumption'
-          } mode`,
+          `SystemId/EcuId ${result.meters[m].systemId}/${result.meters[m].ecuId} ` +
+            `is configured multiple times`,
         );
       }
     }
