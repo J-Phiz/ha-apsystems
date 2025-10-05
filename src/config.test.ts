@@ -11,38 +11,82 @@ describe('getUserConfig', () => {
     vi.mocked(readFileSync).mockReset();
   });
 
-  it('Parses basic config correctly', () => {
+  it('Parses complete config correctly', () => {
     vi.mocked(readFileSync).mockReturnValue(`{
-      "meters": [
-        { "prm": "123", "token": "ccc", "name": "Conso", "action": "sync" },
-        { "prm": "123", "token": "ppp", "name": "Prod", "action": "reset", "production": true }
-      ],
-      "costs": [{ "price": 0.1, "start_date": "2024-07-01", "prm": "123" }]
+      "meters": [{
+        "systemId": "123456789",
+        "ecuId": "a1b2c",
+        "name": "MyAPSys1",
+        "action": "sync"
+      }, {
+        "systemId": "123456789",
+        "ecuId": "d3e4f",
+        "name": "MyAPSys2",
+        "action": "sync"
+      }],
+      "openapi": { "appId": "246bdf", "appSecret": "135ace" }
     }`);
     expect(getUserConfig()).toEqual({
+      api: { appId: '246bdf', appSecret: '135ace' },
       meters: [
-        {
-          action: 'sync',
-          name: 'Conso',
-          prm: '123',
-          production: false,
-          token: 'ccc',
-          costs: [{ price: 0.1, start_date: '2024-07-01' }],
-        },
-        { action: 'reset', name: 'Prod', prm: '123', production: true, token: 'ppp' },
+        { action: 'sync', name: 'MyAPSys1', systemId: '123456789', ecuId: 'a1b2c' },
+        { action: 'sync', name: 'MyAPSys2', systemId: '123456789', ecuId: 'd3e4f' },
       ],
     });
   });
 
-  it('Throws if a PRM is configured multiple times', () => {
+  it('Parses partial config correctly', () => {
     vi.mocked(readFileSync).mockReturnValue(`{
-      "meters": [
-        { "prm": "123", "token": "ccc", "name": "Conso", "action": "sync" },
-        { "prm": "123", "token": "ppp", "name": "Prod", "action": "reset", "production": true },
-        { "prm": "123", "token": "ddd", "name": "Clone", "action": "sync", "production": false }
-      ]
+      "meters": [{
+        "systemId": "123456789",
+        "ecuId": "a1b2c"
+      }, {
+        "systemId": "123456789",
+        "ecuId": "d3e4f"
+      }],
+      "openapi": { "appId": "246bdf", "appSecret": "135ace" }
     }`);
+    expect(getUserConfig()).toEqual({
+      api: { appId: '246bdf', appSecret: '135ace' },
+      meters: [
+        { action: 'sync', name: 'APSystems', systemId: '123456789', ecuId: 'a1b2c' },
+        { action: 'sync', name: 'APSystems', systemId: '123456789', ecuId: 'd3e4f' },
+      ],
+    });
+  });
 
-    expect(() => getUserConfig()).toThrowError('PRM 123 is configured multiple times in consumption mode');
+  it('Parses another partial config correctly', () => {
+    vi.mocked(readFileSync).mockReturnValue(`{
+      "meters": [{
+        "systemId": "123456789",
+        "ecuId": "a1b2c",
+        "action": "reset"
+      }],
+      "openapi": { "appId": "246bdf", "appSecret": "135ace" }
+    }`);
+    expect(getUserConfig()).toEqual({
+      api: { appId: '246bdf', appSecret: '135ace' },
+      meters: [
+        { action: 'reset', name: 'APSystems', systemId: '123456789', ecuId: 'a1b2c' },
+      ],
+    });
+  });
+
+  it('Parses config with duplicate ecusId', () => {
+    vi.mocked(readFileSync).mockReturnValue(`{
+      "meters": [{
+        "systemId": "123456789",
+        "ecuId": "a1b2c",
+        "action": "sync"
+      }, {
+        "systemId": "123456789",
+        "ecuId": "a1b2c",
+        "action": "reset"
+      }],
+      "openapi": { "appId": "246bdf", "appSecret": "135ace" }
+    }`);
+    expect(() => getUserConfig()).toThrowError(
+      'SystemId/EcuId 123456789/a1b2c is configured multiple times',
+    );
   });
 });
