@@ -9,6 +9,9 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apsystems
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,6 +23,9 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apsystems
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,6 +42,9 @@ jobs:
   transpile:
     name: Transpile
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apsystems
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -59,7 +68,7 @@ jobs:
           args: |
             --test \
             --all \
-            --target . \
+            --target ./apsystems \
             --docker-hub ghcr.io/J-Phiz
 
   publish:
@@ -81,5 +90,5 @@ jobs:
         with:
           args: |
             --all \
-            --target . \
+            --target ./apsystems \
             --docker-hub ghcr.io/J-Phiz
