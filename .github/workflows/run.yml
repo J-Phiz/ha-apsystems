@@ -69,7 +69,7 @@ jobs:
             --test \
             --all \
             --target ./apsystems \
-            --docker-hub ghcr.io/J-Phiz
+            --docker-hub ghcr.io/j-phiz
 
   publish:
     name: Build & publish Docker images
@@ -81,14 +81,16 @@ jobs:
       - transpile
     steps:
       - uses: actions/checkout@v4
+
       - uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: J-Phiz
+          username: j-phiz
           password: ${{ secrets.CR_PAT }}
+
       - uses: home-assistant/builder@master
         with:
           args: |
             --all \
             --target ./apsystems \
-            --docker-hub ghcr.io/J-Phiz
+            --docker-hub ghcr.io/j-phiz
