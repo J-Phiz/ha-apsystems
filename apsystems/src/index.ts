@@ -61,7 +61,7 @@ async function handleSyncs(userConfig, haClient, apClient) {
     if (config.action === 'sync') {
       info(`SystemId/EcuId ${config.systemId}/${config.ecuId} found in configuration`);
 
-      const isNew = await haClient.isNewPRM(config.systemId, config.ecuId);
+      const isNew = await haClient.isNewEcu(config.systemId, config.ecuId);
       if (isNew) {
         await initMeter(config, haClient, apClient);
       } else {
