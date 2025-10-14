@@ -1,6 +1,6 @@
 name: APSystems
 description: Sync Energy dashboards with your APSystems photovoltaic solar panel system
-version: 0.0.2
+version: 0.0.5
 slug: apsystems
 init: false
 url: https://github.com/J-Phiz/ha-apsystems

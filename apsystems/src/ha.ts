@@ -14,6 +14,9 @@ import { StatisticDataPoint } from './format.js';
 const WS_URL = process.env.WS_URL || 'ws://supervisor/core/websocket';
 const TOKEN = process.env.SUPERVISOR_TOKEN;
 
+// Statistic source name
+const SOURCE = 'apsystems';
+
 /**
  * Represents a successful response from Home Assistant WebSocket API
  */
@@ -45,7 +48,7 @@ export type ResultMessage = SuccessMessage | ErrorMessage;
 function getStatisticId(systemId: string, ecuId: string): string {
   const lowSystemId = systemId.toLowerCase();
   const lowEcuId = ecuId.toLowerCase();
-  return `apsystems.${lowSystemId}_${lowEcuId}`;
+  return `${SOURCE}:${lowSystemId}_${lowEcuId}`;
 }
 
 /**
@@ -161,7 +164,7 @@ export class HomeAssistantClient {
         has_mean: false,
         has_sum: true,
         name: name,
-        source: statisticId.split('.')[0],
+        source: SOURCE,
         statistic_id: statisticId,
         unit_of_measurement: 'Wh',
       },

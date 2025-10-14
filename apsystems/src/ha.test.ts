@@ -46,7 +46,7 @@ describe('HomeAssistantClient', () => {
           has_sum: true,
           name: 'My Meter',
           source: 'apsystems',
-          statistic_id: 'apsystems.acdc678_123def',
+          statistic_id: 'apsystems:acdc678_123def',
           unit_of_measurement: 'Wh',
         }),
         stats: expect.objectContaining([
@@ -63,7 +63,7 @@ describe('HomeAssistantClient', () => {
   it('isNewEcu returns true if ecuId does not exist', async () => {
     const client = setupClientWithMockedSendMessage({
       success: true,
-      result: [{ statistic_id: 'apsystems.other' }],
+      result: [{ statistic_id: 'apsystems:other' }],
     });
 
     const isNew = await client.isNewEcu('acdc678', '123def');
@@ -73,7 +73,7 @@ describe('HomeAssistantClient', () => {
   it('isNewEcu returns false if ecuId already exist', async () => {
     const client = setupClientWithMockedSendMessage({
       success: true,
-      result: [{ statistic_id: 'apsystems.acdc678_123def' }],
+      result: [{ statistic_id: 'apsystems:acdc678_123def' }],
     });
 
     const isNew = await client.isNewEcu('acdc678', '123def');
@@ -100,7 +100,7 @@ describe('HomeAssistantClient', () => {
 
     const client = setupClientWithMockedSendMessage({
       success: true,
-      result: { 'apsystems.acdc678_123def': [lastPoint] },
+      result: { 'apsystems:acdc678_123def': [lastPoint] },
     });
     client.isNewEcu = vi.fn().mockResolvedValue(false);
 
@@ -116,7 +116,7 @@ describe('HomeAssistantClient', () => {
     expect(client.sendMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'recorder/clear_statistics',
-        statistic_ids: ['apsystems.acdc678_123def'],
+        statistic_ids: ['apsystems:acdc678_123def'],
       }),
     );
   });
