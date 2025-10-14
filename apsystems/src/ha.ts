@@ -43,7 +43,9 @@ export type ResultMessage = SuccessMessage | ErrorMessage;
  * Generates a unique statistic ID for a given system and ECU
  */
 function getStatisticId(systemId: string, ecuId: string): string {
-  return `apsystems:${systemId}_${ecuId}`;
+  const lowSystemId = systemId.toLowerCase();
+  const lowEcuId = ecuId.toLowerCase();
+  return `apsystems.${lowSystemId}_${lowEcuId}`;
 }
 
 /**
@@ -159,7 +161,7 @@ export class HomeAssistantClient {
         has_mean: false,
         has_sum: true,
         name: name,
-        source: statisticId.split(':')[0],
+        source: statisticId.split('.')[0],
         statistic_id: statisticId,
         unit_of_measurement: 'Wh',
       },
