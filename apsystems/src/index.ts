@@ -11,7 +11,6 @@ async function main() {
   debug('HA APSystems is starting');
 
   const userConfig = getUserConfig();
-  debug(`User config = ${JSON.stringify(userConfig, null, 3)}`);
 
   if (!isValidConfig(userConfig)) {
     warn('Add-on is not configured properly');
