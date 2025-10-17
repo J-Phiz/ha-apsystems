@@ -17,22 +17,22 @@ map:
   - addon_config
 options:
   meters:
-    - systemId: ''
+    - name: 'APSystems main residence'
+      systemId: ''
       ecuId: ''
-      name: 'APSystems main residence'
       action: 'sync'
-    - systemId: ''
+    - name: 'APSystems second residence'
+      systemId: ''
       ecuId: ''
-      name: 'APSystems second residence'
       action: 'sync'
   openapi:
     appId: ''
     appSecret: ''
 schema:
   meters:
-    - systemId: str?
+    - name: str?
+      systemId: str?
       ecuId: str?
-      name: str?
       action: list(sync|reset)
   openapi:
     appId: str?

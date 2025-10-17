@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs';
  * Configuration for a single meter (device) in the system.
  */
 export type MeterConfig = {
+  name: string; // Optional human-readable name
   systemId: string; // Unique identifier of the APSystems system
   ecuId: string; // Unique identifier of the ECU device
-  name: string; // Optional human-readable name
   action: 'sync' | 'reset'; // Action to perform: 'sync' for data sync, 'reset' to clear statistics
 };
 
