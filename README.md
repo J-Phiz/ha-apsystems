@@ -13,7 +13,7 @@
 It uses the OpenAPI service provided by APSystems [apsystems-faq](https://emea.apsystems.com/resources/installer-faq/#toggle-id-91).
 
 <p align="center">
-  <img src="https://github.com/J-Phiz/ha-apsystems/assets/ha-energy-result.png">
+  <img src="https://raw.githubusercontent.com/J-Phiz/ha-apsystems/refs/heads/master/assets/ha-energy-result.png">
 </p>
 
 ## Prerequisites
